@@ -1,1 +1,1262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Rosa PRO - Supabase</title>
+    <!-- SDK Oficial do Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif
+        }
+
+        body {
+            margin: 0;
+            background: #fff0f5;
+            color: #4a1230
+        }
+
+        header {
+            background: linear-gradient(90deg, #ff69b4, #880e4f);
+            color: white;
+            padding: 14px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 10
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 23px
+        }
+
+        header p {
+            margin: 3px 0 0;
+            font-size: 12px;
+            opacity: .9
+        }
+
+        nav {
+            display: flex;
+            overflow-x: auto;
+            background: #ffc0d9;
+            padding: 8px;
+            gap: 6px;
+            position: sticky;
+            top: 68px;
+            z-index: 9
+        }
+
+        nav button {
+            border: none;
+            background: white;
+            color: #c2185b;
+            padding: 10px 13px;
+            border-radius: 20px;
+            font-weight: bold;
+            white-space: nowrap;
+            cursor: pointer
+        }
+
+        nav button.active {
+            background: #ec407a;
+            color: white
+        }
+
+        .container {
+            padding: 12px;
+            max-width: 900px;
+            margin: auto;
+            padding-bottom: 90px
+        }
+
+        .card {
+            background: white;
+            border: 2px solid #f8bbd0;
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(236, 64, 122, .15)
+        }
+
+        h2 {
+            color: #d81b60;
+            margin: 0 0 10px;
+            font-size: 18px
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #f8bbd0;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            font-size: 15px
+        }
+
+        .btn {
+            border: none;
+            padding: 13px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            font-size: 15px;
+            margin-top: 6px
+        }
+
+        .btn-rosa {
+            background: #ec407a;
+            color: white
+        }
+
+        .btn-escuro {
+            background: #880e4f !important;
+            color: white !important;
+            font-size: 17px !important;
+            padding: 16px !important
+        }
+
+        .btn-whats {
+            background: #25D366 !important;
+            color: white !important
+        }
+
+        .btn-cinza {
+            background: #fce4ec;
+            color: #880e4f
+        }
+
+        .btn-amarelo {
+            background: #ffca28;
+            color: #4a1230
+        }
+
+        .prod-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px
+        }
+
+        .prod {
+            background: #fce4ec;
+            border: 2px solid #f8bbd0;
+            border-radius: 14px;
+            padding: 14px;
+            text-align: center;
+            cursor: pointer;
+            position: relative
+        }
+
+        .prod.esgotado {
+            opacity: .45;
+            filter: grayscale(1)
+        }
+
+        .prod b {
+            display: block
+        }
+
+        .prod span {
+            color: #c2185b;
+            font-weight: bold
+        }
+
+        .qtd-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #ec407a;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold
+        }
+
+        .cliente-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px
+        }
+
+        .cliente-chip {
+            background: #fff0f5;
+            border: 2px solid #f8bbd0;
+            border-radius: 20px;
+            padding: 10px 14px;
+            cursor: pointer;
+            font-weight: bold
+        }
+
+        .cliente-chip.selecionado {
+            background: #ec407a;
+            color: white
+        }
+
+        .cliente-chip.vip {
+            border-color: #ffca28;
+            border-width: 3px
+        }
+
+        .dot {
+            background: #ec407a;
+            color: white;
+            font-size: 11px;
+            border-radius: 10px;
+            padding: 2px 6px;
+            margin-left: 4px
+        }
+
+        .cliente-selecionado {
+            background: #ec407a;
+            color: white;
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px
+        }
+
+        .item-comanda {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff0f5;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 6px;
+            gap: 8px
+        }
+
+        .item-comanda button {
+            background: #ec407a;
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-weight: bold
+        }
+
+        .btn-excluir {
+            background: #fff !important;
+            color: #d32f2f !important;
+            border: 2px solid #ffcdd2 !important;
+            width: 38px !important;
+            height: 38px !important;
+            border-radius: 10px !important;
+            font-size: 18px !important
+        }
+
+        .total {
+            font-size: 24px;
+            text-align: center;
+            color: #c2185b;
+            font-weight: bold;
+            margin: 10px 0
+        }
+
+        .badge-fiado {
+            background: #ffcdd2;
+            color: #b71c1c;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold
+        }
+
+        .badge-vip {
+            background: #ffca28;
+            color: #4a1230;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold
+        }
+
+        .kpi {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px
+        }
+
+        .kpi div {
+            background: #fff0f5;
+            border: 2px solid #f8bbd0;
+            border-radius: 14px;
+            padding: 12px;
+            text-align: center
+        }
+
+        .kpi div b {
+            font-size: 20px;
+            display: block;
+            color: #ad1457
+        }
+
+        .hidden {
+            display: none !important
+        }
+
+        .flex {
+            display: flex;
+            gap: 8px
+        }
+
+        .flex>* {
+            flex: 1
+        }
+
+        .pag-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 10px 0
+        }
+
+        .btn-pag {
+            border: 3px solid #f8bbd0;
+            background: #fff0f5;
+            color: #880e4f;
+            padding: 18px 8px;
+            border-radius: 16px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer
+        }
+
+        .btn-pag.selecionado {
+            background: #ec407a;
+            color: white;
+            border-color: #880e4f
+        }
+
+        .bar {
+            height: 22px;
+            border-radius: 10px;
+            background: #f8bbd0;
+            overflow: hidden;
+            margin: 6px 0
+        }
+
+        .bar i {
+            display: block;
+            height: 100%;
+            background: #ec407a
+        }
+
+        .bar2 i {
+            background: #880e4f
+        }
+
+        .bar3 i {
+            background: #25D366
+        }
+
+        .alerta {
+            background: #fff3e0;
+            border: 2px solid #ffca28;
+            border-radius: 12px;
+            padding: 10px;
+            font-size: 13px;
+            color: #4a1230;
+            margin-bottom: 6px
+        }
+
+        small {
+            color: #888
+        }
+
+        #loadingOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 240, 245, 0.85);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #880e4f;
+        }
+
+        @media print {
+
+            header,
+            nav,
+            .no-print {
+                display: none !important
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loadingOverlay">🌸 Sincronizando com Supabase...</div>
+
+    <header>
+        <h1>🌸 SISTEMA ROSA PRO 🌸</h1>
+        <p>Estoque • Caixa • Fiado com WhatsApp • Lucro • Relatório | Conectado ao Supabase</p>
+    </header>
+    <nav>
+        <button onclick="show('dashboard')" id="b-dashboard" class="active">📊 Dashboard</button>
+        <button onclick="show('vendas')" id="b-vendas">🛒 Vendas</button>
+        <button onclick="show('fiados')" id="b-fiados">📒 Fiados</button>
+        <button onclick="show('caixa')" id="b-caixa">💰 Caixa</button>
+        <button onclick="show('estoque')" id="b-estoque">📦 Estoque</button>
+        <button onclick="show('resumo')" id="b-resumo">📈 Relatório</button>
+        <button onclick="show('cadastros')" id="b-cadastros">⚙️ Cadastros</button>
+    </nav>
+    <div class="container">
+
+        <div id="dashboard">
+            <div class="card">
+                <h2>📊 Dashboard - <span id="dashEvento"></span></h2>
+                <div class="kpi">
+                    <div><span>💰 Vendido</span><b id="dVendido">R$ 0</b></div>
+                    <div><span>✅ Recebido</span><b id="dRecebido">R$ 0</b></div>
+                    <div><span>📒 Fiado</span><b id="dFiado">R$ 0</b></div>
+                    <div><span>🧾 Despesas</span><b id="dDesp">R$ 0</b></div>
+                </div>
+                <div id="dashLucro" class="card"
+                    style="text-align:center;background:#ec407a;color:white;margin-top:10px">
+                    <h2 style="color:white">Lucro Líquido</h2><b id="dLucro" style="font-size:30px">R$ 0</b>
+                    <p id="dMargem"></p>
+                </div>
+            </div>
+            <div class="card">
+                <h2>⚠️ Alertas Inteligentes</h2>
+                <div id="alertas"></div>
+            </div>
+            <div class="card">
+                <h2>📊 Recebido x Fiado x Despesas</h2>
+                <div id="grafBarras"></div>
+            </div>
+            <div class="card">
+                <h2>🏆 Ranking Clientes</h2>
+                <div id="rankingClientes"></div>
+            </div>
+            <div class="card">
+                <h2>📅 Histórico - Qual festa deu mais lucro?</h2>
+                <div id="historicoEventos"></div>
+            </div>
+            <div class="card no-print">
+                <div class="flex"><button class="btn btn-rosa" onclick="simularExemplo()">▶️ Simular Festa
+                        Junina</button><button class="btn btn-cinza" onclick="window.print()">🖨️ Imprimir</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="vendas" class="hidden">
+            <div class="card">
+                <h2>Evento</h2><select id="eventoAtivo" onchange="salvarEventoAtivo()"></select>
+            </div>
+            <div class="card">
+                <h2>1. Quem está comprando? 👇</h2><input id="buscaClienteVenda"
+                    placeholder="🔍 Digita o nome pra achar rapidinho..." oninput="renderAll()">
+                <div id="clienteSelecionadoDiv" class="cliente-selecionado" style="margin-top:8px">Clica no nome</div>
+                <div id="listaClientesClick" class="cliente-grid" style="margin-top:8px"></div>
+                <div style="margin-top:10px"><input id="novoClienteRapido" placeholder="Nome cliente novo"><input
+                        id="whatsRapido" placeholder="WhatsApp Ex: 41999998888"><button class="btn btn-rosa"
+                        onclick="addClienteRapido()">+ Adicionar</button></div>
+            </div>
+            <div class="card">
+                <h2>2. O que ele pegou? 👇</h2>
+                <div id="listaProdutosVenda" class="prod-grid"></div>
+            </div>
+            <div class="card">
+                <h2>🧾 Comanda de <span id="nomeComanda">...</span></h2>
+                <div id="comandaItens"></div>
+                <label>🏷️ Desconto na comanda:</label>
+                <div class="flex"><input id="desconto" type="number" value="0" placeholder="Desconto R$"><button
+                        class="btn btn-amarelo" style="width:130px;margin:0"
+                        onclick="aplicarDesconto()">Aplicar</button></div>
+                <div class="total" id="totalComanda">Total: R$ 0,00</div>
+                <div id="totalComDesconto" style="text-align:center;font-weight:bold;color:#880e4f"></div>
+                <div class="flex"><button class="btn" style="background:#ff4081;color:white"
+                        onclick="finalizar('fiado')">📒 DEIXAR FIADO</button><button class="btn btn-rosa"
+                        onclick="finalizar('pago')">💰 PAGAR AGORA</button></div>
+                <button class="btn btn-cinza" onclick="imprimirComanda()">🧾 Imprimir Comanda / Ticket</button>
+                <div id="pagamentoDiv" class="hidden"
+                    style="margin-top:14px;border-top:2px dashed #f8bbd0;padding-top:12px">
+                    <h2 style="text-align:center">Como vai pagar?</h2>
+                    <div class="pag-grid"><button class="btn-pag" id="pag-Dinheiro" onclick="setForma('Dinheiro')">💵
+                            DINHEIRO</button><button class="btn-pag" id="pag-Pix" onclick="setForma('Pix')">📱
+                            PIX</button><button class="btn-pag" id="pag-Crédito" onclick="setForma('Crédito')">💳
+                            CRÉDITO</button><button class="btn-pag" id="pag-Débito" onclick="setForma('Débito')">💳
+                            DÉBITO</button></div>
+                    <div id="formaEscolhida" style="text-align:center;font-weight:bold">Selecionado: Pix</div><button
+                        class="btn btn-escuro" onclick="confirmarPagamento()">✅ CONFIRMAR PAGAMENTO</button>
+                </div>
+            </div>
+            <div class="card">
+                <h2>👀 Comandas em aberto</h2>
+                <div id="listaComandasAbertas"></div>
+            </div>
+        </div>
+
+        <div id="fiados" class="hidden">
+            <div class="card">
+                <h2>📒 Fiados - Contas a Receber</h2><input id="buscaFiado" placeholder="🔍 Buscar fiado..."
+                    oninput="renderAll()">
+                <div id="listaFiados" style="margin-top:10px"></div>
+                <div class="card" style="background:#fff0f5"><b>Total a receber: <span id="totalFiadoLista">R$
+                            0</span></b></div><button class="btn btn-whats" onclick="cobrarTodos()">💬 Cobrar TODOS os
+                    fiados de uma vez</button>
+            </div>
+        </div>
+
+        <div id="caixa" class="hidden">
+            <div class="card">
+                <h2>💰 Abertura e Fechamento de Caixa</h2>
+                <p>Quanto você tinha no caixa quando abriu a festa?</p><input id="aberturaCaixa" type="number"
+                    placeholder="Ex: 200"><button class="btn btn-rosa" onclick="salvarCaixa()">Salvar Abertura</button>
+                <div id="resumoCaixa" style="margin-top:12px"></div>
+            </div>
+            <div class="card">
+                <h2>📋 Movimento do Caixa</h2>
+                <div id="movCaixa"></div>
+            </div>
+        </div>
+
+        <div id="estoque" class="hidden">
+            <div class="card">
+                <h2>📦 Estoque</h2>
+                <p>Quando vender, baixa sozinho. Se zerar, trava a venda.</p>
+                <div id="listaEstoque"></div>
+            </div>
+            <div class="card">
+                <h2>➕ Repor Estoque</h2><select id="produtoRepor"></select><input id="qtdRepor" type="number"
+                    placeholder="Quantas unidades entraram?"><button class="btn btn-rosa"
+                    onclick="reporEstoque()">Repor</button>
+            </div>
+        </div>
+
+        <div id="resumo" class="hidden">
+            <div class="card">
+                <h2>📈 Relatório Final - <span id="nomeEventoResumo"></span></h2>
+                <div class="kpi">
+                    <div><span>Vendido</span><b id="rVendido">R$ 0</b></div>
+                    <div><span>Recebido</span><b id="rRecebido">R$ 0</b></div>
+                    <div><span>Fiado</span><b id="rFiado">R$ 0</b></div>
+                    <div><span>Despesas</span><b id="rDespesas">R$ 0</b></div>
+                </div>
+                <div id="cardLucro" class="card"
+                    style="margin-top:12px;text-align:center;background:#ec407a;color:white">
+                    <h2 style="color:white">Lucro / Prejuízo</h2><b id="rLucro" style="font-size:28px">R$ 0</b>
+                    <p id="rMsg"></p>
+                    <p id="rMargem2"></p>
+                </div>
+                <div class="card">
+                    <h3>Vendas por Forma de Pagamento</h3>
+                    <div id="rFormas"></div>
+                </div>
+                <div class="card">
+                    <h3>Produtos mais vendidos</h3>
+                    <div id="rTop"></div>
+                </div>
+                <div class="card no-print">
+                    <div class="flex"><button class="btn btn-rosa" onclick="window.print()">🖨️ Imprimir
+                            Relatório</button><button class="btn btn-escuro" onclick="exportarCSV()">📥 Exportar
+                            Excel</button></div><button class="btn btn-cinza" onclick="fazerBackup()">💾 Backup</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="cadastros" class="hidden">
+            <div class="card">
+                <h2>🎉 Eventos</h2><input id="nomeEvento" placeholder="Ex: Festa Junina"><input id="dataEvento"
+                    type="date"><button class="btn btn-rosa" onclick="addEvento()">Criar Evento</button>
+                <div id="listaEventos" style="margin-top:10px"></div>
+            </div>
+            <div class="card">
+                <h2>👤 Clientes com WhatsApp</h2><input id="nomeClienteCad" placeholder="Nome"><input
+                    id="whatsClienteCad" placeholder="WhatsApp"><button class="btn btn-rosa"
+                    onclick="addClienteCad()">Cadastrar</button>
+                <div id="listaClientesCad" style="margin-top:10px"></div>
+            </div>
+            <div class="card">
+                <h2>🍡 Produtos + Estoque Inicial</h2><input id="nomeProduto" placeholder="Ex: Refrigerante"><input
+                    id="precoProduto" type="number" placeholder="Preço R$"><input id="estoqueProduto" type="number"
+                    placeholder="Estoque inicial Ex: 50"><input id="catProduto" placeholder="Categoria"><button
+                    class="btn btn-rosa" onclick="addProduto()">Cadastrar Produto</button>
+                <div id="listaProdutosCad" style="margin-top:10px"></div>
+            </div>
+            <div class="card">
+                <h2>🧾 Despesas</h2><input id="descDespesa" placeholder="O que comprou?"><input id="valorDespesa"
+                    type="number" placeholder="Valor R$"><input id="catDespesa" placeholder="Categoria"><button
+                    class="btn btn-rosa" onclick="addDespesa()">Adicionar Despesa</button>
+                <div id="listaDespesas"></div>
+            </div>
+            <div class="card">
+                <h2>🎓 Sobre o Sistema</h2>
+                <p><b>Objetivo:</b> Gestão completa por evento.<br><b>Diferenciais:</b> Comanda individual, estoque com
+                    baixa automática, caixa, fiado com cobrança via WhatsApp, desconto, ranking, relatório com margem de
+                    lucro e exportação.<br><b>Tecnologia:</b> HTML, CSS, JavaScript puro + Supabase.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // CONFIGURAÇÃO DO SUPABASE
+        // ==========================================
+        const SUPABASE_URL = 'https://oyjsvyeylypmgfmjvgmv.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_C5KlJ2dW-wnsWowM7SDl4g_O5Gk32VH';
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Estado em memória (espelho do banco)
+        let db = {
+            eventos: [],
+            clientes: [],
+            produtos: [],
+            vendas: [],
+            despesas: [],
+            eventoAtivo: 1,
+            caixaAbertura: 200,
+            descontoAtual: 0
+        };
+        let comandasPorCliente = {};
+        let clienteSelecionadoId = null, vendaPendente = null, formaSelecionada = 'Pix';
+
+        function setLoading(show) {
+            document.getElementById('loadingOverlay').classList.toggle('hidden', !show);
+        }
+
+        // Carrega todos os dados do Supabase
+        async function carregarDados() {
+            setLoading(true);
+            try {
+                const [resEv, resCli, resProd, resVen, resDesp, resCom, resConf] = await Promise.all([
+                    sb.from('eventos').select('*').order('id'),
+                    sb.from('clientes').select('*').order('nome'),
+                    sb.from('produtos').select('*').order('nome'),
+                    sb.from('vendas').select('*').order('id', { ascending: false }),
+                    sb.from('despesas').select('*').order('id', { ascending: false }),
+                    sb.from('comandas_abertas').select('*'),
+                    sb.from('configuracoes').select('*').eq('id', 1).single()
+                ]);
+
+                if (resEv.error) throw resEv.error;
+
+                db.eventos = resEv.data || [];
+                db.clientes = resCli.data || [];
+                db.produtos = (resProd.data || []).map(p => ({ ...p, preco: Number(p.preco) }));
+                db.vendas = (resVen.data || []).map(v => ({
+                    ...v,
+                    eventoId: v.evento_id,
+                    total: Number(v.total),
+                    desconto: Number(v.desconto || 0)
+                }));
+                db.despesas = (resDesp.data || []).map(d => ({
+                    ...d,
+                    eventoId: d.evento_id,
+                    valor: Number(d.valor)
+                }));
+
+                comandasPorCliente = {};
+                (resCom.data || []).forEach(c => {
+                    if (c.itens && c.itens.length > 0) {
+                        comandasPorCliente[c.cliente_id] = c.itens;
+                    }
+                });
+
+                if (resConf.data) {
+                    db.eventoAtivo = resConf.data.evento_ativo || (db.eventos[0]?.id || 1);
+                    db.caixaAbertura = Number(resConf.data.caixa_abertura || 0);
+                    db.descontoAtual = Number(resConf.data.desconto_atual || 0);
+                }
+
+                renderAll();
+            } catch (err) {
+                console.error(err);
+                alert('Erro ao conectar no Supabase. Verifique a URL e a Key no código!');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        async function salvarConfig() {
+            await sb.from('configuracoes').upsert({
+                id: 1,
+                evento_ativo: db.eventoAtivo,
+                caixa_abertura: db.caixaAbertura,
+                desconto_atual: db.descontoAtual
+            });
+        }
+
+        function fmt(v) { return Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+        function getComandaAtual() { return comandasPorCliente[clienteSelecionadoId] || []; }
+
+        async function setComandaAtual(l) {
+            if (!clienteSelecionadoId) return;
+            comandasPorCliente[clienteSelecionadoId] = l;
+            renderAll();
+            if (l.length === 0) {
+                await sb.from('comandas_abertas').delete().eq('cliente_id', clienteSelecionadoId);
+            } else {
+                await sb.from('comandas_abertas').upsert({ cliente_id: clienteSelecionadoId, itens: l });
+            }
+        }
+
+        function totalComandaAtual() {
+            let c = getComandaAtual();
+            let bruto = c.reduce((s, i) => s + i.preco * i.qtd, 0);
+            let desc = db.descontoAtual || 0;
+            return Math.max(0, bruto - desc);
+        }
+
+        async function salvarEventoAtivo() {
+            db.eventoAtivo = +document.getElementById('eventoAtivo').value;
+            db.descontoAtual = 0;
+            renderAll();
+            await salvarConfig();
+        }
+
+        async function usarEvento(id) {
+            db.eventoAtivo = id;
+            db.descontoAtual = 0;
+            renderAll();
+            await salvarConfig();
+        }
+
+        function show(id) {
+            ['dashboard', 'vendas', 'fiados', 'caixa', 'estoque', 'resumo', 'cadastros'].forEach(s => {
+                document.getElementById(s).classList.toggle('hidden', s !== id);
+                document.getElementById('b-' + s).classList.toggle('active', s === id);
+            });
+            renderAll();
+        }
+
+        function selecionarCliente(id) { clienteSelecionadoId = id; renderAll(); }
+
+        async function addClienteRapido() {
+            let n = document.getElementById('novoClienteRapido').value.trim(), w = document.getElementById('whatsRapido').value.trim();
+            if (!n) return alert('Digita o nome');
+            let id = Date.now();
+            setLoading(true);
+            const { error } = await sb.from('clientes').insert({ id, nome: n, whats: w });
+            if (error) { setLoading(false); return alert('Erro ao salvar cliente'); }
+            db.clientes.push({ id, nome: n, whats: w });
+            clienteSelecionadoId = id;
+            document.getElementById('novoClienteRapido').value = '';
+            document.getElementById('whatsRapido').value = '';
+            setLoading(false);
+            renderAll();
+        }
+
+        async function addClienteCad() {
+            let n = document.getElementById('nomeClienteCad').value.trim(), w = document.getElementById('whatsClienteCad').value.trim();
+            if (!n) return alert('Digita o nome');
+            let id = Date.now();
+            setLoading(true);
+            const { error } = await sb.from('clientes').insert({ id, nome: n, whats: w });
+            if (error) { setLoading(false); return alert('Erro ao cadastrar'); }
+            db.clientes.push({ id, nome: n, whats: w });
+            document.getElementById('nomeClienteCad').value = '';
+            document.getElementById('whatsClienteCad').value = '';
+            setLoading(false);
+            renderAll();
+        }
+
+        async function editarWhats(id) {
+            let c = db.clientes.find(x => x.id == id);
+            let novo = prompt('WhatsApp do ' + c.nome, c.whats || '');
+            if (novo === null) return;
+            c.whats = novo.trim();
+            renderAll();
+            await sb.from('clientes').update({ whats: c.whats }).eq('id', id);
+        }
+
+        async function addEvento() {
+            let n = document.getElementById('nomeEvento').value.trim(), d = document.getElementById('dataEvento').value;
+            if (!n) return alert('Coloca o nome');
+            let id = Date.now();
+            setLoading(true);
+            const { error } = await sb.from('eventos').insert({ id, nome: n, data: d });
+            if (error) { setLoading(false); return alert('Erro ao criar evento'); }
+            db.eventos.push({ id, nome: n, data: d });
+            db.eventoAtivo = id;
+            document.getElementById('nomeEvento').value = '';
+            await salvarConfig();
+            setLoading(false);
+            renderAll();
+        }
+
+        async function addProduto() {
+            let n = document.getElementById('nomeProduto').value.trim(), p = +document.getElementById('precoProduto').value, c = document.getElementById('catProduto').value || 'Geral', e = +document.getElementById('estoqueProduto').value || 0;
+            if (!n || !p) return alert('Nome e preço');
+            let id = Date.now();
+            setLoading(true);
+            const { error } = await sb.from('produtos').insert({ id, nome: n, preco: p, cat: c, estoque: e });
+            if (error) { setLoading(false); return alert('Erro ao cadastrar produto'); }
+            db.produtos.push({ id, nome: n, preco: p, cat: c, estoque: e });
+            document.getElementById('nomeProduto').value = '';
+            document.getElementById('precoProduto').value = '';
+            document.getElementById('estoqueProduto').value = '';
+            setLoading(false);
+            renderAll();
+        }
+
+        async function addDespesa() {
+            let d = document.getElementById('descDespesa').value.trim(), v = +document.getElementById('valorDespesa').value, c = document.getElementById('catDespesa').value || 'Geral';
+            if (!d || !v) return alert('Preenche tudo');
+            let id = Date.now();
+            let dataStr = new Date().toLocaleDateString('pt-BR');
+            setLoading(true);
+            const { error } = await sb.from('despesas').insert({ id, evento_id: db.eventoAtivo, desc: d, valor: v, cat: c, data: dataStr });
+            if (error) { setLoading(false); return alert('Erro ao adicionar despesa'); }
+            db.despesas.push({ id, eventoId: db.eventoAtivo, desc: d, valor: v, cat: c, data: dataStr });
+            document.getElementById('descDespesa').value = '';
+            document.getElementById('valorDespesa').value = '';
+            setLoading(false);
+            renderAll();
+        }
+
+        async function excluirEvento(id) {
+            if (!confirm('Excluir evento e todas as vendas/despesas dele?')) return;
+            setLoading(true);
+            await sb.from('eventos').delete().eq('id', id);
+            db.eventos = db.eventos.filter(x => x.id != id);
+            db.vendas = db.vendas.filter(v => v.eventoId != id);
+            db.despesas = db.despesas.filter(d => d.eventoId != id);
+            if (db.eventoAtivo == id && db.eventos.length) {
+                db.eventoAtivo = db.eventos[0].id;
+                await salvarConfig();
+            }
+            setLoading(false);
+            renderAll();
+        }
+
+        async function excluirCliente(id) {
+            if (!confirm('Excluir cliente?')) return;
+            setLoading(true);
+            await sb.from('clientes').delete().eq('id', id);
+            db.clientes = db.clientes.filter(x => x.id != id);
+            delete comandasPorCliente[id];
+            if (clienteSelecionadoId == id) clienteSelecionadoId = null;
+            setLoading(false);
+            renderAll();
+        }
+
+        async function excluirProduto(id) {
+            if (!confirm('Excluir produto?')) return;
+            setLoading(true);
+            await sb.from('produtos').delete().eq('id', id);
+            db.produtos = db.produtos.filter(x => x.id != id);
+            setLoading(false);
+            renderAll();
+        }
+
+        async function excluirDespesa(id) {
+            if (!confirm('Excluir despesa?')) return;
+            setLoading(true);
+            await sb.from('despesas').delete().eq('id', id);
+            db.despesas = db.despesas.filter(d => d.id != id);
+            setLoading(false);
+            renderAll();
+        }
+
+        async function excluirVenda(id) {
+            if (!confirm('Excluir venda?')) return;
+            setLoading(true);
+            let v = db.vendas.find(x => x.id == id);
+            if (v) {
+                for (let i of v.itens) {
+                    let p = db.produtos.find(pp => pp.id == i.id);
+                    if (p) {
+                        p.estoque += i.qtd;
+                        await sb.from('produtos').update({ estoque: p.estoque }).eq('id', p.id);
+                    }
+                }
+            }
+            await sb.from('vendas').delete().eq('id', id);
+            db.vendas = db.vendas.filter(x => x.id != id);
+            setLoading(false);
+            renderAll();
+        }
+
+        function cobrarWhats(vendaId) {
+            let v = db.vendas.find(x => x.id == vendaId);
+            let cliente = db.clientes.find(c => c.nome == v.cliente);
+            let numero = cliente ? (cliente.whats || '') : '';
+            numero = numero.replace(/\D/g, '');
+            if (!numero) {
+                let novo = prompt('WhatsApp do ' + v.cliente);
+                if (!novo) return;
+                numero = novo.replace(/\D/g, '');
+                if (cliente) {
+                    cliente.whats = numero;
+                    sb.from('clientes').update({ whats: numero }).eq('id', cliente.id);
+                }
+            }
+            if (numero.length == 11 || numero.length == 10) numero = '55' + numero;
+            let evento = db.eventos.find(e => e.id == v.eventoId);
+            let msg = `Oi ${v.cliente}! 🌸 Tudo bem? Aqui é da ${evento ? evento.nome : 'evento'}.%0A%0AVocê ficou fiado em ${fmt(v.total)} - ${v.itens.map(i => i.qtd + 'x ' + i.nome).join(', ')}.%0A%0AConsegue pagar no Pix? 🙏`;
+            window.open('https://wa.me/' + numero + '?text=' + msg, '_blank');
+        }
+
+        function cobrarTodos() {
+            let vendasEv = db.vendas.filter(v => v.eventoId == db.eventoAtivo && v.status == 'fiado');
+            if (!vendasEv.length) return alert('Nenhum fiado!');
+            if (!confirm('Abrir WhatsApp pra cobrar ' + vendasEv.length + ' pessoas? Vai abrir uma aba por pessoa.')) return;
+            vendasEv.forEach((v, i) => setTimeout(() => cobrarWhats(v.id), i * 1200));
+        }
+
+        function setForma(f) {
+            formaSelecionada = f;
+            document.querySelectorAll('.btn-pag').forEach(b => b.classList.remove('selecionado'));
+            let el = document.getElementById('pag-' + f);
+            if (el) el.classList.add('selecionado');
+            document.getElementById('formaEscolhida').innerText = 'Selecionado: ' + f;
+        }
+
+        async function aplicarDesconto() {
+            let v = +document.getElementById('desconto').value || 0;
+            db.descontoAtual = v;
+            renderAll();
+            await salvarConfig();
+        }
+
+        async function addNaComanda(id) {
+            if (!clienteSelecionadoId) return alert('Clica primeiro no cliente!');
+            let p = db.produtos.find(x => x.id == id);
+            if ((p.estoque || 0) <= 0) return alert('⚠️ ' + p.nome + ' está ESGOTADO! Repõe no estoque.');
+            let comanda = getComandaAtual();
+            let ex = comanda.find(x => x.id == id);
+            let qtdAtual = ex ? ex.qtd : 0;
+            if (qtdAtual + 1 > p.estoque) return alert('⚠️ Só tem ' + p.estoque + ' ' + p.nome + ' no estoque!');
+            if (ex) ex.qtd++; else comanda.push({ id: p.id, nome: p.nome, preco: p.preco, qtd: 1 });
+            await setComandaAtual(comanda);
+        }
+
+        async function mudarQtd(id, delta) {
+            let comanda = getComandaAtual();
+            let it = comanda.find(x => x.id == id);
+            if (!it) return;
+            if (delta > 0) {
+                let p = db.produtos.find(x => x.id == id);
+                if (p && it.qtd + delta > p.estoque) return alert('⚠️ Limite do estoque atingido!');
+            }
+            it.qtd += delta;
+            if (it.qtd <= 0) comanda = comanda.filter(x => x.id != id);
+            await setComandaAtual(comanda);
+        }
+
+        function renderComanda() {
+            let comanda = getComandaAtual();
+            let cliente = db.clientes.find(c => c.id == clienteSelecionadoId);
+            document.getElementById('nomeComanda').innerText = cliente ? cliente.nome : '...';
+            let div = document.getElementById('comandaItens');
+            if (!clienteSelecionadoId) div.innerHTML = '<small>Clica num cliente.</small>';
+            else if (comanda.length == 0) div.innerHTML = '<small>Comanda vazia.</small>';
+            else div.innerHTML = comanda.map(i => `<div class="item-comanda"><span>${i.nome} - ${fmt(i.preco)}</span><span><button onclick="mudarQtd(${i.id},-1)">-</button> ${i.qtd} <button onclick="mudarQtd(${i.id},1)">+</button> = <b>${fmt(i.preco * i.qtd)}</b></span></div>`).join('');
+            let bruto = comanda.reduce((s, i) => s + i.preco * i.qtd, 0);
+            document.getElementById('totalComanda').innerText = 'Total bruto: ' + fmt(bruto);
+            document.getElementById('totalComDesconto').innerText = db.descontoAtual > 0 ? ('Desconto: -' + fmt(db.descontoAtual) + ' | Total a pagar: ' + fmt(totalComandaAtual())) : '';
+        }
+
+        async function baixarEstoque(itens) {
+            for (let i of itens) {
+                let p = db.produtos.find(pp => pp.id == i.id);
+                if (p) {
+                    p.estoque = Math.max(0, (p.estoque || 0) - i.qtd);
+                    await sb.from('produtos').update({ estoque: p.estoque }).eq('id', p.id);
+                }
+            }
+        }
+
+        async function finalizar(tipo) {
+            if (!clienteSelecionadoId) return alert('Clica no cliente!');
+            let comanda = getComandaAtual();
+            if (!comanda.length) return alert('Adiciona produto!');
+            let cliente = db.clientes.find(c => c.id == clienteSelecionadoId);
+            let total = totalComandaAtual();
+
+            if (tipo == 'fiado') {
+                setLoading(true);
+                let vendaObj = {
+                    id: Date.now(),
+                    evento_id: db.eventoAtivo,
+                    cliente: cliente.nome,
+                    itens: [...comanda],
+                    total,
+                    desconto: db.descontoAtual || 0,
+                    status: 'fiado',
+                    forma: 'Fiado',
+                    data: new Date().toLocaleDateString('pt-BR')
+                };
+
+                const { error } = await sb.from('vendas').insert(vendaObj);
+                if (error) { setLoading(false); return alert('Erro ao registrar fiado'); }
+
+                db.vendas.unshift({ ...vendaObj, eventoId: db.eventoAtivo });
+                await baixarEstoque(comanda);
+                await setComandaAtual([]);
+                delete comandasPorCliente[clienteSelecionadoId];
+                db.descontoAtual = 0;
+                await salvarConfig();
+                setLoading(false);
+                renderAll();
+                alert(cliente.nome + ' ficou fiado em ' + fmt(total));
+            } else {
+                vendaPendente = {
+                    id: Date.now(),
+                    evento_id: db.eventoAtivo,
+                    cliente: cliente.nome,
+                    itens: [...comanda],
+                    total,
+                    desconto: db.descontoAtual || 0
+                };
+                document.getElementById('pagamentoDiv').classList.remove('hidden');
+                setForma('Pix');
+            }
+        }
+
+        async function confirmarPagamento() {
+            if (!vendaPendente) return;
+            setLoading(true);
+            let vendaObj = {
+                ...vendaPendente,
+                status: 'pago',
+                forma: formaSelecionada,
+                data: new Date().toLocaleDateString('pt-BR')
+            };
+
+            const { error } = await sb.from('vendas').insert(vendaObj);
+            if (error) { setLoading(false); return alert('Erro ao confirmar pagamento'); }
+
+            db.vendas.unshift({ ...vendaObj, eventoId: vendaObj.evento_id });
+            await baixarEstoque(vendaPendente.itens);
+            await setComandaAtual([]);
+            delete comandasPorCliente[clienteSelecionadoId];
+            vendaPendente = null;
+            db.descontoAtual = 0;
+            await salvarConfig();
+            document.getElementById('pagamentoDiv').classList.add('hidden');
+            setLoading(false);
+            renderAll();
+            alert('Recebido em ' + formaSelecionada);
+        }
+
+        async function receberFiado(id) {
+            let v = db.vendas.find(x => x.id == id);
+            let forma = prompt('Como pagou? Dinheiro, Pix, Crédito ou Débito', 'Pix');
+            if (!forma) return;
+            setLoading(true);
+            const { error } = await sb.from('vendas').update({ status: 'pago', forma: forma }).eq('id', id);
+            if (error) { setLoading(false); return alert('Erro ao atualizar pagamento'); }
+            v.status = 'pago';
+            v.forma = forma;
+            setLoading(false);
+            renderAll();
+        }
+
+        async function salvarCaixa() {
+            let v = +document.getElementById('aberturaCaixa').value;
+            if (!v && v !== 0) return alert('Coloca o valor');
+            setLoading(true);
+            db.caixaAbertura = v;
+            await salvarConfig();
+            setLoading(false);
+            renderAll();
+            alert('Caixa aberto com ' + fmt(v));
+        }
+
+        async function reporEstoque() {
+            let pid = +document.getElementById('produtoRepor').value;
+            let qtd = +document.getElementById('qtdRepor').value;
+            if (!qtd) return alert('Coloca a quantidade');
+            let p = db.produtos.find(x => x.id == pid);
+            setLoading(true);
+            p.estoque = (p.estoque || 0) + qtd;
+            await sb.from('produtos').update({ estoque: p.estoque }).eq('id', pid);
+            document.getElementById('qtdRepor').value = '';
+            setLoading(false);
+            renderAll();
+            alert(p.nome + ' agora tem ' + p.estoque + ' unidades');
+        }
+
+        function imprimirComanda() {
+            let comanda = getComandaAtual();
+            let cliente = db.clientes.find(c => c.id == clienteSelecionadoId);
+            if (!cliente || !comanda.length) return alert('Seleciona cliente e produto primeiro');
+            let w = window.open('', '', 'width=400,height=600');
+            w.document.write(`<h2 style="text-align:center">🌸 SISTEMA ROSA 🌸</h2><p>Cliente: <b>${cliente.nome}</b><br>Evento: ${db.eventos.find(e => e.id == db.eventoAtivo)?.nome}</p><hr>${comanda.map(i => `<p>${i.qtd}x ${i.nome} - ${fmt(i.preco * i.qtd)}</p>`).join('')}<hr><h3>Total: ${fmt(totalComandaAtual())}</h3><p>Obrigada pela preferência! 💖</p>`);
+            w.print();
+        }
+
+        async function simularExemplo() {
+            let ref = db.produtos.find(p => p.nome == 'Refrigerante'), esp = db.produtos.find(p => p.nome == 'Espeto'), doce = db.produtos.find(p => p.nome == 'Doce');
+            if (!ref || !esp || !doce) return alert('Produtos padrão não encontrados!');
+            if (db.vendas.some(v => v.cliente == 'Geremy' && v.eventoId == db.eventoAtivo)) return alert('Exemplo já simulado neste evento!');
+            let total = 2 * ref.preco + 1 * esp.preco + 2 * doce.preco;
+            let vendaObj = {
+                id: Date.now(),
+                evento_id: db.eventoAtivo,
+                cliente: 'Geremy',
+                itens: [
+                    { id: ref.id, nome: 'Refrigerante', preco: ref.preco, qtd: 2 },
+                    { id: esp.id, nome: 'Espeto', preco: esp.preco, qtd: 1 },
+                    { id: doce.id, nome: 'Doce', preco: doce.preco, qtd: 2 }
+                ],
+                total,
+                desconto: 0,
+                status: 'fiado',
+                forma: 'Fiado',
+                data: new Date().toLocaleDateString('pt-BR')
+            };
+            setLoading(true);
+            await sb.from('vendas').insert(vendaObj);
+            db.vendas.unshift({ ...vendaObj, eventoId: db.eventoAtivo });
+            setLoading(false);
+            renderAll();
+            alert('Geremy fiado em ' + fmt(total));
+        }
+
+        function exportarCSV() {
+            let vendasEv = db.vendas.filter(v => v.eventoId == db.eventoAtivo);
+            let csv = 'Cliente,Itens,Total,Forma,Status,Data\n' + vendasEv.map(v => `"${v.cliente}","${v.itens.map(i => i.qtd + 'x ' + i.nome).join(' ')}",${v.total},${v.forma},${v.status},${v.data}`).join('\n');
+            let a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+            a.download = 'relatorio.csv';
+            a.click();
+        }
+
+        function fazerBackup() {
+            let a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([JSON.stringify({ db, comandasPorCliente })], { type: 'application/json' }));
+            a.download = 'backup_rosa_supabase.json';
+            a.click();
+            alert('Backup baixado!');
+        }
+
+        function renderAll() {
+            let ev = db.eventos.find(e => e.id == db.eventoAtivo) || db.eventos[0];
+            document.getElementById('eventoAtivo').innerHTML = db.eventos.map(e => `<option value="${e.id}" ${e.id == db.eventoAtivo ? 'selected' : ''}>${e.nome} - ${e.data || ''}</option>`).join('');
+            document.getElementById('dashEvento').innerText = ev ? ev.nome : '';
+            document.getElementById('nomeEventoResumo').innerText = ev ? ev.nome : '';
+            document.getElementById('desconto').value = db.descontoAtual || 0;
+            
+            let clienteSel = db.clientes.find(c => c.id == clienteSelecionadoId);
+            document.getElementById('clienteSelecionadoDiv').innerText = clienteSel ? 'Comprando agora: ' + clienteSel.nome : 'Clica no nome do cliente';
+            
+            let buscaC = (document.getElementById('buscaClienteVenda')?.value || '').toLowerCase();
+            let clientesFiltrados = db.clientes.filter(c => c.nome.toLowerCase().includes(buscaC));
+            document.getElementById('listaClientesClick').innerHTML = clientesFiltrados.map(c => {
+                let qtd = (comandasPorCliente[c.id] || []).reduce((s, i) => s + i.qtd, 0);
+                let tot = (comandasPorCliente[c.id] || []).reduce((s, i) => s + i.preco * i.qtd, 0);
+                let totalComprado = db.vendas.filter(v => v.cliente == c.nome).reduce((s, v) => s + v.total, 0);
+                let isVip = totalComprado >= 50;
+                return `<div class="cliente-chip ${c.id == clienteSelecionadoId ? 'selecionado' : ''} ${isVip ? 'vip' : ''}" onclick="selecionarCliente(${c.id})">👤 ${c.nome} ${isVip ? '⭐VIP' : ''} ${c.whats ? '📱' : ''} ${qtd > 0 ? `<span class="dot">${qtd} - ${fmt(tot)}</span>` : ''}</div>`;
+            }).join('') || 'Nenhum cliente com esse nome';
+            
+            let comandaAtual = getComandaAtual();
+            document.getElementById('listaProdutosVenda').innerHTML = db.produtos.map(p => {
+                let qtd = (comandaAtual.find(x => x.id == p.id) || {}).qtd || 0;
+                return `<div class="prod ${p.estoque <= 0 ? 'esgotado' : ''}" onclick="addNaComanda(${p.id})">${qtd > 0 ? `<div class="qtd-badge">${qtd}</div>` : ''}<b>${p.nome}</b><span>${fmt(p.preco)}</span><br><small>${p.cat} | Estoque: ${p.estoque} ${p.estoque <= 5 ? '⚠️' : ''}</small></div>`;
+            }).join('');
+            
+            renderComanda();
+            
+            let abertas = db.clientes.filter(c => (comandasPorCliente[c.id] || []).length > 0);
+            document.getElementById('listaComandasAbertas').innerHTML = abertas.length ? abertas.map(c => {
+                let itens = comandasPorCliente[c.id];
+                return `<div class="item-comanda"><span><b>${c.nome}</b> - ${itens.map(i => i.qtd + 'x ' + i.nome).join(', ')}</span><b>${fmt(itens.reduce((s, i) => s + i.preco * i.qtd, 0))}</b></div>`;
+            }).join('') : '<small>Nenhuma comanda aberta.</small>';
+            
+            let vendasEv = db.vendas.filter(v => v.eventoId == db.eventoAtivo);
+            let totalVendido = vendasEv.reduce((s, v) => s + v.total, 0);
+            let totalRecebido = vendasEv.filter(v => v.status == 'pago').reduce((s, v) => s + v.total, 0);
+            let totalFiado = vendasEv.filter(v => v.status == 'fiado').reduce((s, v) => s + v.total, 0);
+            let desp = db.despesas.filter(d => d.eventoId == db.eventoAtivo);
+            let totalDesp = desp.reduce((s, d) => s + d.valor, 0);
+            let lucro = totalRecebido - totalDesp;
+            let margem = totalRecebido > 0 ? ((lucro / totalRecebido) * 100).toFixed(1) : 0;
+            
+            document.getElementById('dVendido').innerText = fmt(totalVendido);
+            document.getElementById('dRecebido').innerText = fmt(totalRecebido);
+            document.getElementById('dFiado').innerText = fmt(totalFiado);
+            document.getElementById('dDesp').innerText = fmt(totalDesp);
+            document.getElementById('dLucro').innerText = fmt(lucro);
+            document.getElementById('dMargem').innerText = 'Margem: ' + margem + '%';
+            document.getElementById('dashLucro').style.background = lucro >= 0 ? '#ec407a' : '#b71c1c';
+            
+            let alertas = [];
+            db.produtos.filter(p => p.estoque <= 5).forEach(p => alertas.push(`⚠️ <b>${p.nome}</b> está acabando! Só ${p.estoque} no estoque.`));
+            if (totalFiado > 0) alertas.push(`📒 Você tem <b>${fmt(totalFiado)}</b> em fiado pra receber!`);
+            if (!alertas.length) alertas.push('✅ Tudo certo! Nenhum alerta.');
+            document.getElementById('alertas').innerHTML = alertas.map(a => `<div class="alerta">${a}</div>`).join('');
+            
+            let max = Math.max(totalRecebido, totalFiado, totalDesp, 1);
+            document.getElementById('grafBarras').innerHTML = `Recebido ${fmt(totalRecebido)}<div class="bar"><i style="width:${totalRecebido / max * 100}%"></i></div>Fiado ${fmt(totalFiado)}<div class="bar bar2"><i style="width:${totalFiado / max * 100}%"></i></div>Despesas ${fmt(totalDesp)}<div class="bar bar3"><i style="width:${totalDesp / max * 100}%"></i></div>`;
+            
+            let porCliente = {};
+            vendasEv.forEach(v => { porCliente[v.cliente] = (porCliente[v.cliente] || 0) + v.total; });
+            document.getElementById('rankingClientes').innerHTML = Object.entries(porCliente).sort((a, b) => b[1] - a[1]).map(([k, v], i) => `${i + 1}º ${k} ${v >= 50 ? '⭐ VIP' : ''} - <b>${fmt(v)}</b><br>`).join('') || 'Sem vendas';
+            
+            document.getElementById('historicoEventos').innerHTML = db.eventos.map(e => {
+                let vv = db.vendas.filter(v => v.eventoId == e.id);
+                let rec = vv.filter(v => v.status == 'pago').reduce((s, v) => s + v.total, 0);
+                let dd = db.despesas.filter(d => d.eventoId == e.id).reduce((s, d) => s + d.valor, 0);
+                let luc = rec - dd;
+                return `<div class="item-comanda"><span><b>${e.nome}</b> - Recebido ${fmt(rec)} - Desp ${fmt(dd)}</span><b style="color:${luc >= 0 ? 'green' : 'red'}">${fmt(luc)}</b></div>`;
+            }).join('');
+            
+            let busca = (document.getElementById('buscaFiado')?.value || '').toLowerCase();
+            let fiados = vendasEv.filter(v => v.status == 'fiado' && v.cliente.toLowerCase().includes(busca));
+            document.getElementById('listaFiados').innerHTML = fiados.length ? fiados.map(v => {
+                let cli = db.clientes.find(c => c.nome == v.cliente);
+                return `<div class="card" style="background:#fff0f5"><b>${v.cliente}</b> <span class="badge-fiado">FIADO</span><br><small>${v.itens.map(i => i.qtd + 'x ' + i.nome).join(', ')}</small><br><small>📱 ${cli?.whats || 'sem número'}</small><br><b>${fmt(v.total)}</b><br><button class="btn btn-whats" onclick="cobrarWhats(${v.id})">💬 COBRAR NO WHATSAPP</button><div class="flex"><button class="btn btn-rosa" onclick="receberFiado(${v.id})">Receber Agora</button><button class="btn-excluir" style="width:50px!important;height:auto!important" onclick="excluirVenda(${v.id})">🗑️</button></div></div>`;
+            }).join('') : '<small>Nenhum fiado 🎉</small>';
+            document.getElementById('totalFiadoLista').innerText = fmt(fiados.reduce((s, v) => s + v.total, 0));
+            
+            let dinheiro = vendasEv.filter(v => v.status == 'pago' && v.forma == 'Dinheiro').reduce((s, v) => s + v.total, 0);
+            let pix = vendasEv.filter(v => v.status == 'pago' && v.forma == 'Pix').reduce((s, v) => s + v.total, 0);
+            let cartao = vendasEv.filter(v => v.status == 'pago' && (v.forma == 'Crédito' || v.forma == 'Débito')).reduce((s, v) => s + v.total, 0);
+            let esperado = (db.caixaAbertura || 0) + dinheiro;
+            document.getElementById('resumoCaixa').innerHTML = `<div class="kpi"><div><span>Abertura</span><b>${fmt(db.caixaAbertura || 0)}</b></div><div><span>Dinheiro</span><b>${fmt(dinheiro)}</b></div><div><span>Pix</span><b>${fmt(pix)}</b></div><div><span>Cartão</span><b>${fmt(cartao)}</b></div></div><div class="card" style="background:#ec407a;color:white;text-align:center;margin-top:10px"><b>💰 Caixa deve ter em dinheiro: ${fmt(esperado)}</b><br><small>Abertura + Dinheiro recebido</small></div>`;
+            document.getElementById('movCaixa').innerHTML = vendasEv.filter(v => v.status == 'pago').map(v => `<div class="item-comanda"><span>${v.cliente} - ${v.forma}</span><b>+ ${fmt(v.total)}</b></div>`).join('') || 'Sem movimento';
+            
+            document.getElementById('listaEstoque').innerHTML = db.produtos.map(p => `<div class="item-comanda"><span><b>${p.nome}</b> - ${fmt(p.preco)}<br><small>${p.estoque <= 5 ? '⚠️ ESTOQUE BAIXO! ' : ''} Restam ${p.estoque} unidades</small></span><span style="display:flex;gap:6px;align-items:center"><b>${p.estoque <= 5 ? '🔴' : '🟢'}</b><button class="btn-excluir" onclick="excluirProduto(${p.id})">🗑️</button></span></div>`).join('');
+            document.getElementById('produtoRepor').innerHTML = db.produtos.map(p => `<option value="${p.id}">${p.nome} - atual ${p.estoque}</option>`).join('');
+            
+            document.getElementById('listaDespesas').innerHTML = desp.map(d => `<div class="item-comanda"><span><b>${d.desc}</b></span><span style="display:flex;gap:6px;align-items:center"><b>${fmt(d.valor)}</b><button class="btn-excluir" onclick="excluirDespesa(${d.id})">🗑️</button></span></div>`).join('') || 'Sem despesas';
+            document.getElementById('rVendido').innerText = fmt(totalVendido);
+            document.getElementById('rRecebido').innerText = fmt(totalRecebido);
+            document.getElementById('rFiado').innerText = fmt(totalFiado);
+            document.getElementById('rDespesas').innerText = fmt(totalDesp);
+            document.getElementById('rLucro').innerText = fmt(lucro);
+            document.getElementById('cardLucro').style.background = lucro >= 0 ? '#ec407a' : '#b71c1c';
+            document.getElementById('rMsg').innerText = lucro >= 0 ? 'LUCRO! 🎉' : 'PREJUÍZO';
+            document.getElementById('rMargem2').innerText = 'Margem: ' + margem + '%';
+            
+            let formas = {};
+            vendasEv.filter(v => v.status == 'pago').forEach(v => { formas[v.forma] = (formas[v.forma] || 0) + v.total; });
+            document.getElementById('rFormas').innerHTML = Object.entries(formas).map(([k, v]) => `${k}: <b>${fmt(v)}</b> - ${totalRecebido > 0 ? (v / totalRecebido * 100).toFixed(0) : 0}%<div class="bar"><i style="width:${totalRecebido > 0 ? v / totalRecebido * 100 : 0}%"></i></div>`).join('') || 'Sem pagamentos';
+            
+            let cont = {};
+            vendasEv.forEach(v => v.itens.forEach(i => { cont[i.nome] = (cont[i.nome] || 0) + i.qtd; }));
+            document.getElementById('rTop').innerHTML = Object.entries(cont).map(([k, v]) => `${k}: <b>${v}</b><br>`).join('') || 'Sem vendas';
+            
+            document.getElementById('listaEventos').innerHTML = db.eventos.map(e => `<div class="item-comanda"><span><b>${e.nome}</b> - ${e.data || ''}</span><span style="display:flex;gap:6px"><button class="btn btn-rosa" style="width:auto;padding:8px;margin:0" onclick="usarEvento(${e.id})">Usar</button><button class="btn-excluir" onclick="excluirEvento(${e.id})">🗑️</button></span></div>`).join('');
+            document.getElementById('listaClientesCad').innerHTML = db.clientes.map(c => `<div class="item-comanda"><span>👤 <b>${c.nome}</b><br><small>📱 ${c.whats || 'sem WhatsApp'}</small></span><span style="display:flex;gap:6px"><button class="btn btn-rosa" style="width:auto;padding:8px;margin:0" onclick="editarWhats(${c.id})">📱 Whats</button><button class="btn-excluir" onclick="excluirCliente(${c.id})">🗑️</button></span></div>`).join('');
+            document.getElementById('listaProdutosCad').innerHTML = db.produtos.map(p => `<div class="item-comanda"><span>${p.nome} - ${fmt(p.preco)} - Estoque ${p.estoque}</span><button class="btn-excluir" onclick="excluirProduto(${p.id})">🗑️</button></div>`).join('');
+        }
+
+        // Inicializa puxando dados do Supabase
+        carregarDados();
+    </script>
+</body>
+
+</html>
